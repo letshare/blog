@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006-2014 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006-2013 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -128,7 +128,6 @@ class Db {
                   'database'  =>  $db_config['db_name'],
                   'dsn'       =>  $db_config['db_dsn'],
                   'params'    =>  $db_config['db_params'],
-                  'charset'   =>  isset($db_config['db_charset'])?$db_config['db_charset']:'utf8',
              );
         }elseif(empty($db_config)) {
             // 如果配置为空，读取配置文件设置
@@ -144,7 +143,6 @@ class Db {
                     'database'  =>  C('DB_NAME'),
                     'dsn'       =>  C('DB_DSN'),
                     'params'    =>  C('DB_PARAMS'),
-                    'charset'   =>  C('DB_CHARSET'),
                 );
             }
         }
@@ -173,9 +171,13 @@ class Db {
      * @return void
      */
     protected function multiConnect($master=false) {
-        foreach ($this->config as $key=>$val){
-            $_config[$key]      =   explode(',',$val);
-        }        
+        static $_config = array();
+        if(empty($_config)) {
+            // 缓存分布式数据库配置解析
+            foreach ($this->config as $key=>$val){
+                $_config[$key]      =   explode(',',$val);
+            }
+        }
         // 数据库读写是否分离
         if(C('DB_RW_SEPARATE')){
             // 主从式采用读写分离
@@ -202,14 +204,13 @@ class Db {
             'database'  =>  isset($_config['database'][$r])?$_config['database'][$r]:$_config['database'][0],
             'dsn'       =>  isset($_config['dsn'][$r])?$_config['dsn'][$r]:$_config['dsn'][0],
             'params'    =>  isset($_config['params'][$r])?$_config['params'][$r]:$_config['params'][0],
-            'charset'   =>  isset($_config['charset'][$r])?$_config['charset'][$r]:$_config['charset'][0],            
         );
         return $this->connect($db_config,$r);
     }
 
     /**
      * DSN解析
-     * 格式： mysql://username:passwd@localhost:3306/DbName#charset
+     * 格式： mysql://username:passwd@localhost:3306/DbName
      * @static
      * @access public
      * @param string $dsnStr
@@ -225,8 +226,7 @@ class Db {
             'password'  =>  isset($info['pass']) ? $info['pass'] : '',
             'hostname'  =>  isset($info['host']) ? $info['host'] : '',
             'hostport'  =>  isset($info['port']) ? $info['port'] : '',
-            'database'  =>  isset($info['path']) ? substr($info['path'],1) : '',
-            'charset'   =>  isset($info['fragment'])?$info['fragment']:'utf8',
+            'database'  =>  isset($info['path']) ? substr($info['path'],1) : ''
             );
         }else {
             preg_match('/^(.*?)\:\/\/(.*?)\:(.*?)\@(.*?)\:([0-9]{1, 6})\/(.*?)$/',trim($dsnStr),$matches);
@@ -789,7 +789,7 @@ class Db {
             }else{
                 $page = $options['page'];
             }
-            $page    =  $page?:1;
+            $page    =  $page?$page:1;
             $listRows=  isset($listRows)?$listRows:(is_numeric($options['limit'])?$options['limit']:20);
             $offset  =  $listRows*((int)$page-1);
             $options['limit'] =  $offset.','.$listRows;

@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006-2014 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006-2013 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -77,14 +77,5 @@ class Xcache extends Cache {
      */
     public function rm($name) {
         return xcache_unset($this->options['prefix'].$name);
-    }
-
-    /**
-     * 清除缓存
-     * @access public
-     * @return boolean
-     */
-    public function clear() {
-        return xcache_clear_cache(1, -1);
     }
 }

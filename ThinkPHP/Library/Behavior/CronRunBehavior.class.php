@@ -31,8 +31,8 @@ class CronRunBehavior {
         // );
         if(is_file(RUNTIME_PATH.'~crons.php')) {
             $crons	=	include RUNTIME_PATH.'~crons.php';
-        }elseif(is_file(COMMON_PATH.'Conf/crons.php')){
-            $crons	=	include COMMON_PATH.'Conf/crons.php';
+        }elseif(is_file(CONF_PATH.'crons.php')){
+            $crons	=	include CONF_PATH.'crons.php';
         }
         if(isset($crons) && is_array($crons)) {
             $update	 =	 false;
@@ -41,8 +41,7 @@ class CronRunBehavior {
                 if(empty($cron[2]) || $_SERVER['REQUEST_TIME']>=$cron[2]) {
                     // 到达时间 执行cron文件
                     G('cronStart');
-                    include COMMON_PATH.'Cron/'.$cron[0].'.php';
-                    G('cronEnd');
+                    include LIB_PATH.'Cron/'.$cron[0].'.php';
                     $_useTime	 =	 G('cronStart','cronEnd', 6);
                     // 更新cron记录
                     $cron[2]	=	$_SERVER['REQUEST_TIME']+$cron[1];
@@ -53,7 +52,7 @@ class CronRunBehavior {
             }
             if($update) {
                 // 记录Cron执行日志
-                \Think\Log::write(implode('',$log));
+                Log::write(implode('',$log));
                 // 更新cron文件
                 $content  = "<?php\nreturn ".var_export($crons,true).";\n?>";
                 file_put_contents(RUNTIME_PATH.'~crons.php',$content);

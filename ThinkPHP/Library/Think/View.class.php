@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006-2014 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006-2013 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -140,8 +140,8 @@ class View {
         if(is_file($template)) {
             return $template;
         }
-        $depr       =   C('TMPL_FILE_DEPR');
-        $template   =   str_replace(':', $depr, $template);
+        $depr   =   C('TMPL_FILE_DEPR');
+        $template = str_replace(':', $depr, $template);
         // 获取当前主题名称
         $theme = $this->getTemplateTheme();
 
@@ -152,7 +152,11 @@ class View {
         }
         // 获取当前主题的模版路径
         if(!defined('THEME_PATH')){
-            define('THEME_PATH', C('VIEW_PATH')? C('VIEW_PATH').$theme : APP_PATH.$module.'/'.C('DEFAULT_V_LAYER').'/'.$theme);
+            if(C('VIEW_PATH')){ // 视图目录
+                define('THEME_PATH',   C('VIEW_PATH').$module.'/'.$theme);
+            }else{ // 模块视图
+                define('THEME_PATH',   APP_PATH.$module.'/'.C('DEFAULT_V_LAYER').'/'.$theme);
+            }
         }
 
         // 分析模板文件规则

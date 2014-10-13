@@ -46,7 +46,7 @@ class Mysqli extends Db{
             $dbVersion = $this->linkID[$linkNum]->server_version;
             
             // 设置数据库编码
-            $this->linkID[$linkNum]->query("SET NAMES '".$config['charset']."'");
+            $this->linkID[$linkNum]->query("SET NAMES '".C('DB_CHARSET')."'");
             //设置 sql_model
             if($dbVersion >'5.0.1'){
                 $this->linkID[$linkNum]->query("SET sql_mode=''");
@@ -64,9 +64,7 @@ class Mysqli extends Db{
      * @access public
      */
     public function free() {
-        if(is_object($this->queryID)){
-            $this->queryID->free_result();
-        }
+        $this->queryID->free_result();
         $this->queryID = null;
     }
 
